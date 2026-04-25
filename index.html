@@ -238,8 +238,7 @@
       overflow: hidden;
       border: 1px solid rgba(201,168,76,.3);
       box-shadow: 0 0 60px rgba(58,109,140,.3), 0 0 30px rgba(201,168,76,.1);
-      /* Aspect ratio 4:3 para Google Drive preview (640x480) */
-      padding-bottom: 75%; /* 480/640 = 0.75 = 75% */
+      padding-bottom: 75%;
       height: 0;
     }
 
@@ -253,9 +252,59 @@
     }
 
     /* ─────────────────────────────────────────
-       COUNTDOWN
+       NARRATIVE SECTION (nueva sección)
     ───────────────────────────────────────── */
-    #countdown { text-align: center; }
+    #narrative {
+      padding: 5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .narrative-text-top {
+      font-family: var(--font-serif);
+      font-size: clamp(1.15rem, 3.2vw, 1.65rem);
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--silver);
+      margin-bottom: 3rem;
+      padding: 0 1rem;
+    }
+
+    .narrative-image-wrapper {
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid rgba(201,168,76,.25);
+      box-shadow: 
+        0 8px 32px rgba(58,109,140,.25),
+        0 0 20px rgba(201,168,76,.1);
+    }
+
+    .narrative-image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .narrative-text-bottom {
+      font-family: var(--font-serif);
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-style: italic;
+      line-height: 1.75;
+      color: var(--silver);
+      padding: 0 1rem;
+      white-space: pre-line;
+    }
+
+    /* ─────────────────────────────────────────
+       COUNTDOWN (ahora al final antes del footer)
+    ───────────────────────────────────────── */
+    #countdown { 
+      text-align: center;
+      padding: 5rem 1.5rem;
+    }
 
     .countdown-wrapper {
       display: flex;
@@ -479,74 +528,6 @@
     }
 
     /* ─────────────────────────────────────────
-       RSVP STRIP
-    ───────────────────────────────────────── */
-    .rsvp-strip {
-      background: linear-gradient(90deg,
-        rgba(58,109,140,.15) 0%,
-        rgba(201,168,76,.1) 50%,
-        rgba(58,109,140,.15) 100%);
-      border-top: 1px solid rgba(201,168,76,.2);
-      border-bottom: 1px solid rgba(201,168,76,.2);
-      text-align: center;
-      padding: 3.5rem 1.5rem;
-    }
-
-    .rsvp-card {
-      display: inline-block;
-      padding: 2rem 2.5rem;
-      border-radius: 1.5rem;
-      background: linear-gradient(135deg,
-        rgba(58,109,140,.22) 0%,
-        rgba(255,255,255,.06) 50%,
-        rgba(201,168,76,.1) 100%);
-      border: 1px solid rgba(201,168,76,.3);
-      backdrop-filter: blur(10px);
-      text-align: left;
-      max-width: 420px;
-      width: 100%;
-    }
-
-    .rsvp-card-title {
-      font-family: var(--font-display);
-      font-size: .85rem;
-      font-weight: 400;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--gold-light), var(--white) 60%, var(--gold-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      display: block;
-      margin-bottom: 1.4rem;
-      text-align: center;
-    }
-
-    .rsvp-row {
-      display: flex;
-      align-items: center;
-      gap: .8rem;
-      padding: .65rem 0;
-      border-bottom: 1px solid rgba(201,168,76,.12);
-    }
-    .rsvp-row:last-child { border-bottom: none; }
-    .rsvp-row-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .rsvp-row-label {
-      font-size: .55rem;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--gold);
-      display: block;
-      margin-bottom: .15rem;
-    }
-    .rsvp-row-value {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1rem;
-      color: var(--white);
-    }
-
-    /* ─────────────────────────────────────────
        FOOTER
     ───────────────────────────────────────── */
     footer {
@@ -598,8 +579,10 @@
     @media (max-width: 480px) {
       .countdown-wrapper { gap: .8rem; }
       .countdown-box { padding: 1.4rem .8rem; }
-      .rsvp-card { padding: 1.5rem 1.2rem; }
       .carousel-btn { width: 36px; height: 36px; font-size: .9rem; }
+      #narrative { padding: 3.5rem 1.5rem; }
+      .narrative-text-top,
+      .narrative-text-bottom { padding: 0 .5rem; }
     }
   </style>
 </head>
@@ -640,29 +623,19 @@
 
 
   <!-- ╔══════════════════════════════════╗ -->
-  <!-- ║           COUNTDOWN              ║ -->
+  <!-- ║     NARRATIVE SECTION (nueva)    ║ -->
   <!-- ╚══════════════════════════════════╝ -->
-  <section id="countdown">
-    <span class="section-label reveal">La magia comienza en</span>
+  <section id="narrative">
+    <p class="narrative-text-top reveal">
+      Hay fechas que se guardan en el corazón y personas que las hacen más especiales.
+    </p>
 
-    <div class="countdown-wrapper reveal-stagger" id="cd-wrapper">
-      <div class="countdown-box card">
-        <span class="countdown-num" id="cd-days">00</span>
-        <span class="countdown-label">Días</span>
-      </div>
-      <div class="countdown-box card">
-        <span class="countdown-num" id="cd-hours">00</span>
-        <span class="countdown-label">Horas</span>
-      </div>
-      <div class="countdown-box card">
-        <span class="countdown-num" id="cd-mins">00</span>
-        <span class="countdown-label">Minutos</span>
-      </div>
-      <div class="countdown-box card">
-        <span class="countdown-num" id="cd-secs">00</span>
-        <span class="countdown-label">Segundos</span>
-      </div>
+    <div class="narrative-image-wrapper reveal">
+      <img src="foto7.JPG" alt="Sara" />
     </div>
+
+    <p class="narrative-text-bottom reveal">Sarita pronto cumplirá 15 años y deseamos que nos acompañes.
+Estamos preparando un evento especial, cada detalle planeado con mucha ilusión, para que sea una noche inolvidable.</p>
   </section>
 
 
@@ -714,37 +687,30 @@
 
 
   <!-- ╔══════════════════════════════════╗ -->
-  <!-- ║           RSVP                   ║ -->
+  <!-- ║   COUNTDOWN (movido al final)    ║ -->
   <!-- ╚══════════════════════════════════╝ -->
-  <div class="rsvp-strip">
-    <div class="rsvp-card">
-      <span class="rsvp-card-title">Confirmar Asistencia</span>
+  <section id="countdown">
+    <span class="section-label reveal">La magia comienza en</span>
 
-      <div class="rsvp-row">
-        <span class="rsvp-row-icon">📞</span>
-        <div>
-          <span class="rsvp-row-label">Teléfono / WhatsApp</span>
-          <span class="rsvp-row-value">[+502 0000 0000]</span>
-        </div>
+    <div class="countdown-wrapper reveal-stagger" id="cd-wrapper">
+      <div class="countdown-box card">
+        <span class="countdown-num" id="cd-days">00</span>
+        <span class="countdown-label">Días</span>
       </div>
-
-      <div class="rsvp-row">
-        <span class="rsvp-row-icon">✉️</span>
-        <div>
-          <span class="rsvp-row-label">Correo electrónico</span>
-          <span class="rsvp-row-value">[correo@ejemplo.com]</span>
-        </div>
+      <div class="countdown-box card">
+        <span class="countdown-num" id="cd-hours">00</span>
+        <span class="countdown-label">Horas</span>
       </div>
-
-      <div class="rsvp-row">
-        <span class="rsvp-row-icon">📅</span>
-        <div>
-          <span class="rsvp-row-label">Confirmar antes del</span>
-          <span class="rsvp-row-value">[DD de Mes de 2026]</span>
-        </div>
+      <div class="countdown-box card">
+        <span class="countdown-num" id="cd-mins">00</span>
+        <span class="countdown-label">Minutos</span>
+      </div>
+      <div class="countdown-box card">
+        <span class="countdown-num" id="cd-secs">00</span>
+        <span class="countdown-label">Segundos</span>
       </div>
     </div>
-  </div>
+  </section>
 
 
   <!-- ╔══════════════════════════════════╗ -->
@@ -801,7 +767,6 @@ document.querySelectorAll('.reveal, .reveal-stagger')
 
 /* ── CAROUSEL ──────────────────────────────────────────────── */
 
-// Rutas de las imágenes reales
 const SLIDES = [
   { src: 'foto1.JPG', label: 'Sara - Foto 1' },
   { src: 'foto2.JPG', label: 'Sara - Foto 2' },
