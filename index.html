@@ -92,7 +92,7 @@
     .page { position: relative; z-index: 1; }
 
     /* ─────────────────────────────────────────
-       HEADER / HERO (espacios reducidos arriba)
+       HEADER / HERO
     ───────────────────────────────────────── */
     header {
       min-height: auto;
@@ -171,7 +171,7 @@
     .sparkle:nth-child(7)  { left: 80%; top: 15%; animation-delay: 1.05s; }
 
     /* ─────────────────────────────────────────
-       SECTION WRAPPER (espacios reducidos)
+       SECTION WRAPPER
     ───────────────────────────────────────── */
     section {
       padding: 2.5rem 1.5rem;
@@ -224,7 +224,7 @@
     }
 
     /* ─────────────────────────────────────────
-       VIDEO (vertical 9:16, sin franjas negras)
+       VIDEO (vertical 9:16)
     ───────────────────────────────────────── */
     .video-container {
       max-width: 380px;
@@ -247,7 +247,7 @@
     }
 
     /* ─────────────────────────────────────────
-       NARRATIVE SECTION (espacios ajustados)
+       NARRATIVE SECTION (font-size aumentado)
     ───────────────────────────────────────── */
     #narrative {
       padding: 2.5rem 2rem;
@@ -258,7 +258,7 @@
 
     .narrative-text-top {
       font-family: var(--font-serif);
-      font-size: clamp(1.15rem, 3.2vw, 1.65rem);
+      font-size: clamp(1.25rem, 3.5vw, 1.8rem);
       font-style: italic;
       line-height: 1.7;
       color: var(--silver);
@@ -285,7 +285,7 @@
 
     .narrative-text-bottom {
       font-family: var(--font-serif);
-      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-size: clamp(1.2rem, 3.2vw, 1.65rem);
       font-style: italic;
       line-height: 1.75;
       color: var(--silver);
@@ -294,7 +294,7 @@
     }
 
     /* ─────────────────────────────────────────
-       COUNTDOWN (espacios reducidos)
+       COUNTDOWN
     ───────────────────────────────────────── */
     #countdown { 
       text-align: center;
@@ -370,7 +370,13 @@
       border-radius: 1.5rem;
     }
 
-    .detail-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .detail-icon { 
+      height: 2.2rem;
+      width: auto;
+      margin: 0 auto 1rem;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(201,168,76,.3));
+    }
 
     .detail-label {
       font-family: var(--font-sans);
@@ -647,14 +653,14 @@ Estamos preparando un evento especial, cada detalle planeado con mucha ilusión,
     <div class="details-grid reveal-stagger">
 
       <div class="detail-card card">
-        <span class="detail-icon">📅</span>
+        <img src="calendario.png" alt="Fecha" class="detail-icon" />
         <p class="detail-label">Fecha</p>
         <p class="detail-value">Sábado, 19 de septiembre de 2026</p>
         <p class="detail-sub">¡Pon esto en tu calendario!</p>
       </div>
 
       <div class="detail-card card">
-        <span class="detail-icon">📍</span>
+        <span class="detail-icon" style="font-size: 2rem;">📍</span>
         <p class="detail-label">Lugar</p>
         <p class="detail-value">Salón Azaria</p>
         <p class="detail-sub">Cayalá, Zona 16, Ciudad de Guatemala</p>
@@ -769,15 +775,9 @@ const SLIDES = [
   { src: 'foto1.JPG', label: 'Sarita - Foto 1' },
   { src: 'foto2.JPG', label: 'Sarita - Foto 2' },
   { src: 'foto3.JPG', label: 'Sarita - Foto 3' },
+  { src: 'foto4.JPG', label: 'Sarita - Foto 4' },
   { src: 'foto5.JPG', label: 'Sarita - Foto 5' },
   { src: 'foto6.JPG', label: 'Sarita - Foto 6' },
-  { src: 'foto7.JPG', label: 'Sarita - Foto 7' },
-  { src: 'foto8.JPG', label: 'Sarita - Foto 8' },
-  { src: 'foto9.JPG', label: 'Sarita - Foto 9' },
-  { src: 'foto10.JPG', label: 'Sarita - Foto 10' },
-  { src: 'foto11.JPG', label: 'Sarita - Foto 11' },
-  { src: 'foto12.JPG', label: 'Sarita - Foto 12' },
-  { src: 'foto13.JPG', label: 'Sarita - Foto 13' },
 ];
 
 (function initCarousel() {
@@ -947,7 +947,6 @@ const SLIDES = [
     if (e.key === 'ArrowRight') goTo(current + 1);
   });
 
-  // Auto-play cada 2 segundos (2000ms)
   let autoTimer = setInterval(() => goTo(current + 1), 2000);
 
   viewport.addEventListener('mouseenter', () => clearInterval(autoTimer));
