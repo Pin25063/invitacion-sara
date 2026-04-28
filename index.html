@@ -427,7 +427,7 @@
     }
 
     .carousel-slide {
-      flex: 0 0 var(--slide-width, 100%);
+      flex: 0 0 100%;
       aspect-ratio: 16 / 9;
       position: relative;
       overflow: hidden;
@@ -497,6 +497,7 @@
       transition: background .2s, border-color .2s, transform .2s;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      padding: 0;
     }
     .carousel-btn:hover {
       background: rgba(201,168,76,.2);
@@ -522,6 +523,7 @@
       border: 1px solid rgba(201,168,76,.4);
       cursor: pointer;
       transition: background .25s, transform .25s;
+      padding: 0;
     }
     .carousel-dot.active {
       background: var(--gold);
@@ -677,7 +679,7 @@ Estamos preparando un evento especial, cada detalle planeado con mucha ilusión,
     <span class="section-label reveal">✦</span>
     <h3 class="section-title reveal">Galeria de fotos</h3>
 
-    <div class="carousel-viewport reveal">
+    <div class="carousel-viewport reveal" id="carouselViewport">
       <div class="carousel-track" id="carouselTrack">
         <!-- Los slides se inyectan desde JS -->
       </div>
@@ -790,17 +792,22 @@ const SLIDES = [
   const total = SLIDES.length;
   let current = 0;
   let isAnimating = false;
+  let autoTimer = null;
+  const AUTO_INTERVAL = 5000; // 5 segundos entre cambios automáticos
 
+  // ── Crear slides ──
   function makeSlide(data) {
     const div = document.createElement('div');
     div.className = 'carousel-slide';
     const img = document.createElement('img');
     img.src = data.src;
     img.alt = data.label;
+    img.loading = 'lazy';
     div.appendChild(img);
     return div;
   }
 
+  // ── Inicializar track con clones ──
   const cloneLast  = makeSlide(SLIDES[total - 1]);
   const cloneFirst = makeSlide(SLIDES[0]);
   cloneLast.dataset.clone  = 'last';
@@ -810,64 +817,114 @@ const SLIDES = [
   SLIDES.forEach(s => track.appendChild(makeSlide(s)));
   track.appendChild(cloneFirst);
 
+  // ── Crear dots ──
   const dots = [];
   SLIDES.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
     dot.setAttribute('aria-label', `Ir a foto ${i + 1}`);
-    dot.addEventListener('click', () => goTo(i));
+    dot.addEventListener('click', (e) => {
+      e.preventDefault();
+      goTo(i);
+    });
     dotsWrap.appendChild(dot);
     dots.push(dot);
   });
 
+  // ── Obtener ancho del viewport ──
   function slideWidth() {
     return viewport.offsetWidth;
   }
 
+  // ── Índice en el DOM (con clones) ──
   function domIndex(logical) {
     return logical + 1;
   }
 
+  // ── Posicionar track ──
   function setPosition(logical, animated) {
     const w = slideWidth();
-    track.style.setProperty('--slide-width', '100%');
     const offset = domIndex(logical) * w;
+    
     if (animated) {
       track.classList.add('animating');
     } else {
       track.classList.remove('animating');
     }
+    
     track.style.transform = `translateX(-${offset}px)`;
   }
 
+  // ── Ir a un slide específico ──
   function goTo(index, animated = true) {
     if (isAnimating) return;
+
+    // Detener auto-scroll y reiniciarlo
+    clearAutoScroll();
+    
     isAnimating = true;
     current = index;
     setPosition(current, animated);
     updateDots();
+
+    // Permitir siguiente acción después de animación
     if (!animated) {
       isAnimating = false;
+      startAutoScroll();
     }
   }
 
+  // ── Actualizar dots ──
   function updateDots() {
     dots.forEach((d, i) => d.classList.toggle('active', i === current));
   }
 
-  btnPrev.addEventListener('click', () => {
+  // ── Iniciar auto-scroll ──
+  function startAutoScroll() {
+    clearAutoScroll();
+    autoTimer = setInterval(() => {
+      if (!isAnimating) {
+        const nextIndex = (current + 1) % total;
+        goToAutomatic(nextIndex);
+      }
+    }, AUTO_INTERVAL);
+  }
+
+  // ── Parar auto-scroll ──
+  function clearAutoScroll() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+  }
+
+  // ── Ir al siguiente (automático) ──
+  function goToAutomatic(index) {
+    if (isAnimating) return;
+    isAnimating = true;
+    current = index;
+    setPosition(current, true);
+    updateDots();
+  }
+
+  // ── Event Listeners para botones ──
+  btnPrev.addEventListener('click', (e) => {
+    e.preventDefault();
     if (isAnimating) return;
     goTo(current - 1);
   });
 
-  btnNext.addEventListener('click', () => {
+  btnNext.addEventListener('click', (e) => {
+    e.preventDefault();
     if (isAnimating) return;
     goTo(current + 1);
   });
 
+  // ── Cuando termina la transición ──
   track.addEventListener('transitionend', () => {
     track.classList.remove('animating');
 
+    // Lógica circular: volver al inicio/final sin animación
     if (current < 0) {
       current = total - 1;
       setPosition(current, false);
@@ -878,32 +935,40 @@ const SLIDES = [
 
     updateDots();
     isAnimating = false;
-  });
+    startAutoScroll();
+  }, { once: false });
 
+  // ── Inicializar posición ──
   requestAnimationFrame(() => {
     setPosition(current, false);
+    startAutoScroll();
   });
 
+  // ── Reposicionar en resize ──
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      setPosition(current, false);
+      if (!isAnimating) {
+        setPosition(current, false);
+      }
     }, 80);
   });
 
+  // ── TOUCH SWIPE ──
   let touchStartX = 0;
   let touchStartY = 0;
   let isDragging  = false;
   const SWIPE_THRESHOLD = 40;
 
-  viewport.addEventListener('touchstart', e => {
+  viewport.addEventListener('touchstart', (e) => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     isDragging  = true;
+    clearAutoScroll();
   }, { passive: true });
 
-  viewport.addEventListener('touchmove', e => {
+  viewport.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
     const dx = Math.abs(e.touches[0].clientX - touchStartX);
     const dy = Math.abs(e.touches[0].clientY - touchStartY);
@@ -912,48 +977,69 @@ const SLIDES = [
     }
   }, { passive: false });
 
-  viewport.addEventListener('touchend', e => {
+  viewport.addEventListener('touchend', (e) => {
     if (!isDragging) return;
     isDragging = false;
     const dx = e.changedTouches[0].clientX - touchStartX;
+    
     if (Math.abs(dx) >= SWIPE_THRESHOLD) {
-      dx < 0 ? goTo(current + 1) : goTo(current - 1);
+      e.preventDefault();
+      goTo(dx < 0 ? current + 1 : current - 1);
+    } else {
+      startAutoScroll();
     }
-  }, { passive: true });
+  }, { passive: false });
 
+  // ── MOUSE DRAG ──
   let mouseStartX = 0;
   let mouseDown   = false;
 
-  viewport.addEventListener('mousedown', e => {
+  viewport.addEventListener('mousedown', (e) => {
     mouseStartX = e.clientX;
     mouseDown   = true;
     viewport.style.cursor = 'grabbing';
+    clearAutoScroll();
   });
 
-  window.addEventListener('mouseup', e => {
+  window.addEventListener('mouseup', (e) => {
     if (!mouseDown) return;
     mouseDown = false;
     viewport.style.cursor = '';
     const dx = e.clientX - mouseStartX;
+    
     if (Math.abs(dx) >= SWIPE_THRESHOLD) {
-      dx < 0 ? goTo(current + 1) : goTo(current - 1);
+      goTo(dx < 0 ? current + 1 : current - 1);
+    } else {
+      startAutoScroll();
     }
   });
 
-  document.addEventListener('keydown', e => {
+  // ── KEYBOARD ──
+  document.addEventListener('keydown', (e) => {
     const rect = viewport.getBoundingClientRect();
     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-    if (e.key === 'ArrowLeft')  goTo(current - 1);
-    if (e.key === 'ArrowRight') goTo(current + 1);
+    
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goTo(current - 1);
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goTo(current + 1);
+    }
   });
 
-  let autoTimer = setInterval(() => goTo(current + 1), 2000);
-
-  viewport.addEventListener('mouseenter', () => clearInterval(autoTimer));
+  // ── PAUSA EN HOVER ──
+  viewport.addEventListener('mouseenter', () => clearAutoScroll());
   viewport.addEventListener('mouseleave', () => {
-    autoTimer = setInterval(() => goTo(current + 1), 2000);
+    if (!isAnimating) startAutoScroll();
   });
-  viewport.addEventListener('touchstart', () => clearInterval(autoTimer), { passive: true });
+
+  // ── PAUSA EN TOUCH ──
+  viewport.addEventListener('touchstart', () => clearAutoScroll(), { passive: true });
+  viewport.addEventListener('touchend', () => {
+    if (!isAnimating) startAutoScroll();
+  }, { passive: true });
 
 })();
 </script>
